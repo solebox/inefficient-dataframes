@@ -9,7 +9,7 @@ import pytest
 from src.data_frame import DataFrame
 from glob import glob
 
-from src.main import get_csv_file_paths_from_dir
+from file_helpers import get_csv_file_paths_from_dir, read_dataframe_from_csv
 
 
 class TestDataFrameUnit:
@@ -22,31 +22,22 @@ class TestDataFrameUnit:
         datasets_paths = get_csv_file_paths_from_dir(datasets_dir)
         dataset_path = datasets_paths.pop(0)
         self.dataset_path = dataset_path
-        with open(self.dataset_path) as dataset_handle:
-            reader = csv.reader(dataset_handle)
-            headers = next(reader)
-            data_frame = DataFrame(headers, reader)
-            yield data_frame
+        data_frame = read_dataframe_from_csv(dataset_path)
+        yield data_frame
 
     @pytest.fixture
     def small_data_frame(self):
         dataset_path = "../resources/students_test/small.csv"
         self.dataset_path = dataset_path
-        with open(self.dataset_path) as dataset_handle:
-            reader = csv.reader(dataset_handle)
-            headers = next(reader)
-            data_frame = DataFrame(headers, reader)
-            yield data_frame
+        data_frame = read_dataframe_from_csv(dataset_path)
+        yield data_frame
 
     @pytest.fixture
     def small_data_frame2(self):
         dataset_path = "../resources/students_test/small2.csv"
         self.dataset_path = dataset_path
-        with open(self.dataset_path) as dataset_handle:
-            reader = csv.reader(dataset_handle)
-            headers = next(reader)
-            data_frame = DataFrame(headers, reader)
-            yield data_frame
+        data_frame = read_dataframe_from_csv(dataset_path)
+        yield data_frame
 
     def test_sum(self, small_data_frame):
         result = small_data_frame.pluck(11).sum()

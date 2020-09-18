@@ -1,28 +1,39 @@
-import json
 import os
-from glob import glob
+from concurrent.futures.thread import ThreadPoolExecutor
+
+from file_helpers import get_file_locations, read_dataframe_from_csv
 
 
-def get_csv_file_paths_from_dir(dir_path):
-    return glob(os.path.join(dir_path, '*.csv'))
-
-
-def get_file_locations():
-    config_path = "../configs/students.json"
-    with open(config_path) as config_file:
-        config = json.load(config_file)
-        path_to_csvs = config.get("students_datasets_path")
-        file_loctions = get_csv_file_paths_from_dir(path_to_csvs)
-        return file_loctions
+def transformation(source_path, target_path):
+    print(f"transforming {source_path} to {target_path}\n")
+    data_frame = read_dataframe_from_csv(source_path)
+    data_frame.filter(3, 'Iowa').pluck(11).max().write_to_csv(target_path)
 
 
 def parallel_play():
-    print("lets do this in parallel")
+    file_locations = get_file_locations()
+    file_targets = []
+    results = []
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        for file_location in file_locations:
+            target = os.path.join("../resources/output", os.path.basename(file_location))
+            file_targets.append(target)
+            future = executor.submit(transformation, file_location, target)
+            results.append(future)
 
 
 def flatten():
-    print("lets flatten it")
+    file_locations = get_file_locations()
+    target = os.path.join("../resources/output", "flattened.csv")
+    first_file = file_locations.pop(0)
+    data_frame = read_dataframe_from_csv(first_file)
+    data_frame = data_frame.pluck(11).avg()
+    for file_location in file_locations:
+        data_frame2 = read_dataframe_from_csv(file_location)
+        data_frame.merge(data_frame2.pluck(11).avg())
+    data_frame.max().write_to_csv(target)
 
 
 if __name__ == "__main__":
-    print(get_file_locations())
+    parallel_play()
+    flatten()

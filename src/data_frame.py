@@ -108,6 +108,7 @@ class DataFrame:
     def merge(self, *dataframes):
         for dataframe in dataframes:
             self._data = chain(self._data, self._get_data_generator(dataframe._data))
+        return self.__class__(self._headers, self._data)
 
     def write_to_csv(self, target):
         data = self._get_data_generator(self._data)
@@ -116,3 +117,4 @@ class DataFrame:
             writer.writerow(self._headers)
             for row in data:
                 writer.writerow(row)
+        return self.__class__(self._headers, self._data)
