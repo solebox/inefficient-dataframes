@@ -7,7 +7,7 @@ from typing import Iterable
 
 class DataFrame:
 
-    def __init__(self, headers: list, data: Iterable):
+    def __init__(self, headers: list, data: Iterable[list]):
         self._headers = headers
         self._data = self._get_data_generator(data)
 
