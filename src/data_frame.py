@@ -25,7 +25,7 @@ class DataFrame:
         return self._headers
 
     def _get_data_generator(self, data):
-        self._data, iter = tee(data)
+        self._data, iter = tee(data) #fixme - apperantly this evil copier iterates over the data and loads the unused iterator into mem
         return iter
 
     def _pluck(self, position):
